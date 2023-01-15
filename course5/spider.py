@@ -7,7 +7,6 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
 # Ignore SSL certificate errors
-# Ignorar erros de certificado SSL
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
@@ -25,7 +24,6 @@ cur.execute('''CREATE TABLE IF NOT EXISTS Links
 cur.execute('''CREATE TABLE IF NOT EXISTS Webs (url TEXT UNIQUE)''')
 
 # Check to see if we are already in progress...
-# Verifique se já estamos em andamento...
 cur.execute('SELECT id,url FROM Pages WHERE html is NULL and error is NULL ORDER BY RANDOM() LIMIT 1')
 row = cur.fetchone()
 if row is not None:
@@ -45,7 +43,6 @@ else :
         conn.commit()
 
 # Get the current webs
-# Obtenha as webs atuais
 cur.execute('''SELECT url FROM Webs''')
 webs = list()
 for row in cur:
@@ -75,7 +72,6 @@ while True:
     print(fromid, url, end=' ')
 
     # If we are retrieving this page, there should be no links from it
-    # Se estivermos recuperando esta página, não deve haver links dela
     cur.execute('DELETE from Links WHERE from_id=?', (fromid, ) )
     try:
         document = urlopen(url, context=ctx)
@@ -109,14 +105,12 @@ while True:
     conn.commit()
 
     # Retrieve all of the anchor tags
-    # Recupere todas as tags de âncora
     tags = soup('a')
     count = 0
     for tag in tags:
         href = tag.get('href', None)
         if ( href is None ) : continue
         # Resolve relative references like href="/contact"
-        # Resolva referências relativas como href="/contact"
         up = urlparse(href)
         if ( len(up.scheme) < 1 ) :
             href = urljoin(url, href)
@@ -128,7 +122,6 @@ while True:
         if ( len(href) < 1 ) : continue
 
 		# Check if the URL is in any of the webs
-        # Verifique se a URL está em alguma das webs
         found = False
         for web in webs:
             if ( href.startswith(web) ) :
